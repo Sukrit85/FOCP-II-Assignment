@@ -1,68 +1,77 @@
-#include <bits/stdc++.h>
+#include <iostream>
+#include <unordered_map>
+#include <unordered_set>
+#include <string>
+
 using namespace std;
 
-unordered_map<string, unordered_set<string>> dataStore;
+unordered_map<string, unordered_set<string>> movieCustomers;
 
 int main() {
     ios::sync_with_stdio(false);
-    cin.tie(0);
+    cin.tie(nullptr);
 
-    int queries;
-    cin >> queries;
+    int numberOfQueries;
+    cin >> numberOfQueries;
 
-    while (queries--) {
+    while (numberOfQueries--) {
 
-        string command;
-        cin >> command;
+        string operationType;
+        cin >> operationType;
 
-        if (command == "BOOK") {
+        if (operationType == "BOOK") {
 
-            string customer, movie;
-            cin >> customer >> movie;
+            string customerId, movieId;
+            cin >> customerId >> movieId;
 
-            bool alreadyBooked = dataStore[movie].find(customer) != dataStore[movie].end();
-            bool full = dataStore[movie].size() >= 100;
+            auto &customers = movieCustomers[movieId];
 
-            if (alreadyBooked || full) {
-                cout << "false\n";
-                continue;
-            }
-
-            dataStore[movie].insert(customer);
-            cout << "true\n";
-        }
-
-        else if (command == "CANCEL") {
-
-            string customer, movie;
-            cin >> customer >> movie;
-
-            if (dataStore[movie].find(customer) == dataStore[movie].end()) {
+            if (customers.count(customerId) || customers.size() >= 100) {
                 cout << "false\n";
             } else {
-                dataStore[movie].erase(customer);
+                customers.insert(customerId);
                 cout << "true\n";
             }
-        }
 
-        else if (command == "IS_BOOKED") {
+        } 
+        else if (operationType == "CANCEL") {
 
-            string customer, movie;
-            cin >> customer >> movie;
+            string customerId, movieId;
+            cin >> customerId >> movieId;
 
-            if (dataStore[movie].find(customer) != dataStore[movie].end())
+            auto it = movieCustomers.find(movieId);
+
+            if (it == movieCustomers.end() || !it->second.count(customerId)) {
+                cout << "false\n";
+            } else {
+                it->second.erase(customerId);
+                cout << "true\n";
+            }
+
+        } 
+        else if (operationType == "IS_BOOKED") {
+
+            string customerId, movieId;
+            cin >> customerId >> movieId;
+
+            auto it = movieCustomers.find(movieId);
+
+            if (it != movieCustomers.end() && it->second.count(customerId))
                 cout << "true\n";
             else
                 cout << "false\n";
-        }
 
-        else {
+        } 
+        else if (operationType == "AVAILABLE_TICKETS") {
 
-            string movie;
-            cin >> movie;
+            string movieId;
+            cin >> movieId;
 
-            int booked = dataStore[movie].size();
-            cout << 100 - booked << '\n';
+            auto it = movieCustomers.find(movieId);
+
+            int booked = (it == movieCustomers.end()) ? 0 : it->second.size();
+
+            cout << (100 - booked) << "\n";
         }
     }
 
